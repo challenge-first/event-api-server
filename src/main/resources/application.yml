@@ -1,0 +1,34 @@
+
+spring:
+  data:
+    redis:
+      host: 127.0.0.1
+      port: 6379
+  application:
+    name: event-server
+server:
+  tomcat:
+    threads:
+      max: 300
+  port: 8006
+
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: httptrace, health, info, metrics, prometheus
+
+
+kafka:
+  topic:
+    event:
+      scheduler: scheduler-topic
+
+  address: 127.0.0.1:9092
