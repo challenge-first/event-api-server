@@ -1,6 +1,7 @@
 package com.example.eventapiserver.controller;
 
 import com.example.eventapiserver.service.EventApiService;
+import com.example.eventapiserver.service.UserDuplicatedException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,6 @@ import java.util.Map;
 
 @Slf4j
 @RequiredArgsConstructor
-//@RequestMapping("/event-server")
 @RestController
 public class EventApiController {
 
@@ -21,22 +21,12 @@ public class EventApiController {
     @PostMapping("/events/coupon")
     public ResponseEntity<Map<String,String>> event(@RequestBody EventRequestDto eventRequestDto) {
         long now = System.nanoTime();
-        log.info("Controller 요청 접근 = {}, [{}]",eventRequestDto.getMemberId(), now);
         eventApiService.addQueue(eventRequestDto.getEventId(), eventRequestDto.getMemberId(), now);
         return ResponseEntity.status(HttpStatus.OK).body(Collections.singletonMap("msg","success"));
     }
 
-    @GetMapping("/events/coupon")
-    public ResponseEntity<Void> getEvent(@RequestParam Long memberId, @RequestParam Long eventId) {
-        eventApiService.getQueue(eventId, memberId);
-
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+    @ExceptionHandler(UserDuplicatedException.class)
+    public ResponseEntity<Map<String, String>> duplicatedExceptionHandler(UserDuplicatedException e) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Collections.singletonMap("msg",e.getMessage()));
     }
-
-//    @GetMapping("/events/test")
-//    public ResponseEntity<Void> test(@RequestParam("eventId") Long eventId) {
-//        eventApiService.requestCreateCoupons(eventId);
-//
-//        return ResponseEntity.status(HttpStatus.OK).body(null);
-//    }
 }
